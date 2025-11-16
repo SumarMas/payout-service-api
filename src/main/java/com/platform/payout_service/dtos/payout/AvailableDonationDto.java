@@ -13,7 +13,7 @@ import java.util.List;
  * Data Transfer Object representing available donations for payment.
  */
 @Data
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
