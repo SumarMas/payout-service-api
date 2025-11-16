@@ -23,7 +23,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "payout_request_donations")
 @Data
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
