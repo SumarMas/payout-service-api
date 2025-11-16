@@ -12,7 +12,7 @@ public class PayoutRequestStatusExchangeConfig extends ExchangeAbstractConfig {
      *
      * @param exchangeNameParam the name of the exchange
      */
-    public PayoutRequestStatusExchangeConfig(@Value("${queue.payout-status.exchange}") String exchangeNameParam) {
+    public PayoutRequestStatusExchangeConfig(@Value("${queues.payout-status.exchange}") String exchangeNameParam) {
         super(exchangeNameParam);
     }
 }

@@ -71,6 +71,6 @@ pool:
   donation:
     url: ${DONATION_SERVICE_URL:http://localhost:9080/donations}
 
-queue:
+queues:
   payout-status:
     exchange: ${EXCHANGE_PAYOUT_STATUS:payout.status}
