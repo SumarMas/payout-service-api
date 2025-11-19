@@ -7,7 +7,7 @@ import com.platform.payout_service.dtos.campaign.CampaignDto;
 import com.platform.payout_service.dtos.common.ErrorApi;
 import com.platform.payout_service.enums.CampaignState;
 import com.platform.payout_service.restClients.campaign.ICampaignRestClient;
-import jakarta.ws.rs.core.UriBuilder;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -21,7 +21,10 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -71,26 +74,29 @@ public class CampaignRestClient implements ICampaignRestClient {
      */
     @Override
     public ResponseEntity<CampaignDto[]> getCampaignsByStateAndNgoId(CampaignState state, UUID ngoId) {
-        String getUrl = rootUrl + "/api/v1/campaigns/filter";
-        UriBuilder uriBuilder = UriBuilder.fromUri(getUrl);
         try {
-            if (state != null) {
-                uriBuilder.queryParam("state", state);
-            }
-            if (ngoId != null) {
-                uriBuilder.queryParam("ngoId", ngoId);
-            }
-            String finalUrl = uriBuilder.build().toString();
+            UriComponentsBuilder builder = UriComponentsBuilder
+                    .fromUriString(rootUrl)
+                    .path("/api/v1/campaigns/filter")
+                    .queryParamIfPresent("state", Optional.ofNullable(state))
+                    .queryParamIfPresent("ngoId", Optional.ofNullable(ngoId));
+
+            URI uri = builder.build().toUri();
+
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
+
             HttpEntity<Void> requestEntity = new HttpEntity<>(null, headers);
-            log.trace("Sending GET request to URL: {}", getUrl);
+
+            log.trace("Sending GET request to URL: {}", uri);
+
             return restTemplate.exchange(
-                    finalUrl,
+                    uri,
                     HttpMethod.GET,
                     requestEntity,
                     CampaignDto[].class
             );
+
         } catch (HttpClientErrorException | HttpServerErrorException ex) {
             log.error("HTTP error during get data campaigns: {}", ex.getMessage());
             handleError(ex);
