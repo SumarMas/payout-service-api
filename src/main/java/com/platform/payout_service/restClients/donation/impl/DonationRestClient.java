@@ -7,7 +7,7 @@ import com.platform.payout_service.dtos.common.ErrorApi;
 import com.platform.payout_service.dtos.donation.DonationsDto;
 import com.platform.payout_service.enums.DonationStatus;
 import com.platform.payout_service.restClients.donation.IDonationRestClient;
-import jakarta.ws.rs.core.UriBuilder;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -21,7 +21,9 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
 import java.util.Set;
 import java.util.UUID;
 /**
@@ -68,22 +70,37 @@ public class DonationRestClient implements IDonationRestClient {
      * @return a ResponseEntity containing a DonationsDto with the filtered donations
      */
     @Override
-    public ResponseEntity<DonationsDto> getDonantionsByCampaignsIdAndStatus(Set<DonationStatus> status, Set<UUID> campaignIds) {
-        String getUrl = rootUrl + "/api/v1/donations";
-        UriBuilder uriBuilder = UriBuilder.fromUri(getUrl)
-                .queryParam("status", status);
+    public ResponseEntity<DonationsDto> getDonantionsByCampaignsIdAndStatus(Set<DonationStatus> status,
+                                                                            Set<UUID> campaignIds) {
         try {
-            String finalUrl = uriBuilder.build().toString();
+            UriComponentsBuilder builder = UriComponentsBuilder
+                    .fromUriString(rootUrl)
+                    .path("/api/v1/donations");
+
+            if (status != null && !status.isEmpty()) {
+                status.forEach(st -> builder.queryParam("status", st));
+            }
+
+            if (campaignIds != null && !campaignIds.isEmpty()) {
+                campaignIds.forEach(id -> builder.queryParam("campaign", id));
+            }
+
+            URI uri = builder.build().toUri();
+
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
+
             HttpEntity<Void> requestEntity = new HttpEntity<>(null, headers);
-            log.trace("Sending GET request to URL: {}", getUrl);
+
+            log.trace("Sending GET request to URL: {}", uri);
+
             return restTemplate.exchange(
-                    finalUrl,
+                    uri,
                     HttpMethod.GET,
                     requestEntity,
                     DonationsDto.class
             );
+
         } catch (HttpClientErrorException | HttpServerErrorException ex) {
             log.error("HTTP error during get data donations: {}", ex.getMessage());
             handleError(ex);
