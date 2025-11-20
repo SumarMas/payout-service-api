@@ -19,8 +19,8 @@ CREATE TABLE payout_requests (
                                  approval_datetime DATETIME DEFAULT NULL,
                                  created_datetime DATETIME NOT NULL,
                                  created_user BINARY(16) NOT NULL,
-                                 last_updated_datetime DATETIME NOT NULL,
-                                 last_updated_user BINARY(16) NOT NULL,
+                                 last_updated_datetime DATETIME DEFAULT NOW(),
+                                 last_updated_user BINARY(16) NULL,
                                  enabled BOOLEAN DEFAULT TRUE,
                                  PRIMARY KEY (payout_request_id)
 ) ENGINE=InnoDB;
@@ -35,8 +35,8 @@ CREATE TABLE payout_request_donations (
                                           amount DECIMAL(11,2) NOT NULL,
                                           created_datetime DATETIME NOT NULL,
                                           created_user BINARY(16) NOT NULL,
-                                          last_updated_datetime DATETIME NOT NULL,
-                                          last_updated_user BINARY(16) NOT NULL,
+                                          last_updated_datetime DATETIME DEFAULT NOW(),
+                                          last_updated_user BINARY(16) NULL,
                                           enabled BOOLEAN DEFAULT TRUE,
                                           PRIMARY KEY (payout_request_id, donation_id),
                                           CONSTRAINT fk_payout_request FOREIGN KEY (payout_request_id) REFERENCES payout_requests(payout_request_id)
@@ -55,8 +55,8 @@ CREATE TABLE payout_requests_audit (
                                        approval_datetime DATETIME,
                                        created_datetime DATETIME NOT NULL,
                                        created_user BINARY(16) NOT NULL,
-                                       last_updated_datetime DATETIME NOT NULL,
-                                       last_updated_user BINARY(16) NOT NULL,
+                                       last_updated_datetime DATETIME DEFAULT NOW(),
+                                       last_updated_user BINARY(16) NULL,
                                        enabled BOOLEAN DEFAULT TRUE,
                                        version INT NOT NULL,
                                        PRIMARY KEY (payout_request_id, version)
@@ -72,8 +72,8 @@ CREATE TABLE payout_request_donations_audit (
                                                 amount DECIMAL(11,2) NOT NULL,
                                                 created_datetime DATETIME NOT NULL,
                                                 created_user BINARY(16) NOT NULL,
-                                                last_updated_datetime DATETIME NOT NULL,
-                                                last_updated_user BINARY(16) NOT NULL,
+                                                last_updated_datetime DATETIME DEFAULT NOW(),
+                                                last_updated_user BINARY(16),
                                                 enabled BOOLEAN DEFAULT TRUE,
                                                 version INT NOT NULL,
                                                 PRIMARY KEY (payout_request_id, donation_id, version)
@@ -84,6 +84,23 @@ CREATE TABLE payout_request_donations_audit (
 -- =============================================================
 
 DELIMITER $$
+CREATE TRIGGER before_insert_payout_requests
+    BEFORE INSERT ON payout_requests
+    FOR EACH ROW
+BEGIN
+    SET NEW.created_datetime = NOW();
+    SET NEW.last_updated_datetime = NOW();
+    SET NEW.last_updated_user = NEW.created_user;
+END$$
+
+CREATE TRIGGER before_insert_payout_request_donations
+    BEFORE INSERT ON payout_request_donations
+    FOR EACH ROW
+BEGIN
+    SET NEW.created_datetime = NOW();
+    SET NEW.last_updated_datetime = NOW();
+    SET NEW.last_updated_user = NEW.created_user;
+END$$
 
 CREATE TRIGGER after_insert_payout_requests
     AFTER INSERT ON payout_requests
