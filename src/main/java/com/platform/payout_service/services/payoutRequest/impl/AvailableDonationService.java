@@ -70,10 +70,13 @@ public class AvailableDonationService implements IAvailableDonationService {
             List<DonationDto> donationDtos = entry.getValue();
             donationDtos.removeIf(donationDto -> payoutRequestDonations.stream()
                     .anyMatch(prd -> prd.getId().getDonationId().equals(donationDto.getDonationId())));
-            CampaignDto campaignDto = campaigns.get(campaignId);
-            AvailableDonationDto data = modelMapper.map(campaignDto, AvailableDonationDto.class);
-            data.setDonations(donationDtos);
-            availableDonationDtos.add(data);
+            if (!donationDtos.isEmpty()) {
+                CampaignDto campaignDto = campaigns.get(campaignId);
+                AvailableDonationDto data = modelMapper.map(campaignDto, AvailableDonationDto.class);
+                data.setDonations(donationDtos);
+                availableDonationDtos.add(data);
+            }
+
         }
 
         return availableDonationDtos;
