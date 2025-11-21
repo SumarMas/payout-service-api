@@ -35,6 +35,7 @@ public class PayoutRequestPublishEventService implements IPayoutRequestPublishEv
                     .totalAmount(payoutRequestEntity.getTotalAmount())
                     .payoutStatus(newStatus)
                     .previousPayoutStatus(previousStatus)
+                    .payoutDatetime(payoutRequestEntity.getApprovalDatetime())
                     .build();
             payoutProducer.publishPayoutEvent(payoutMessageDto);
         } catch (NullPointerException e) {
