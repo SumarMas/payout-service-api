@@ -62,6 +62,11 @@ public class AvailableDonationService implements IAvailableDonationService {
         NgoDto myNgo = getMyNgo();
         Map<UUID, CampaignDto> campaigns = getCampaigns(UUID.fromString(myNgo.getId()));
         Set<UUID> campaignsId = campaigns.keySet();
+        log.info("total campaigns found for ngoId {}: {}", myNgo.getId(), campaignsId.size());
+        if (campaignsId.isEmpty()) {
+            log.info("no closed campaigns found for ngoId {}", myNgo.getId());
+            return List.of();
+        }
         DonationsDto donationsDto = getDonations(campaignsId);
         List<PayoutRequestDonationEntity> payoutRequestDonations = getPayoutRequestDonations(UUID.fromString(myNgo.getId()));
         List<AvailableDonationDto> availableDonationDtos = new ArrayList<>();
