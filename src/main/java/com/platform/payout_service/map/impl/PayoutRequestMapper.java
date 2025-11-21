@@ -34,6 +34,7 @@ public class PayoutRequestMapper implements IMapper<PayoutRequestDto, PayoutRequ
                     .status(entity.getStatus())
                     .requestDateTime(entity.getRequestDatetime())
                     .approvalDatetime(entity.getApprovalDatetime())
+                    .proofFileId(entity.getProofFileId())
                     .donations(
                             entity.getDonations().stream()
                                     .map(this::mapToDtoPayoutRequestDonation)
